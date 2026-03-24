@@ -98,24 +98,28 @@ const developerDevelopmentCell: MatrixCell = {
       tools: [
         {
           name: "Cursor Agent Mode",
+          badge: "key",
           description:
             "Autonomously plans and edits across multiple files from a single task description. Use Plan Mode to see the full plan before any changes are made.",
           url: "https://cursor.com/blog/agent-best-practices",
         },
         {
           name: "GitHub Copilot Coding Agent",
+          badge: "key",
           description:
             "Assign a GitHub Issue to Copilot — it plans, commits, and opens a draft PR. You review it like any other pull request.",
           url: "https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-coding-agent",
         },
         {
           name: "AGENTS.md / .cursorrules",
+          badge: "key",
           description:
             "File at the repo root with instructions for agents: code style, test strategy, build commands. A shared standard for the whole team across all AI tools.",
           url: "https://agents.md",
         },
         {
           name: "Claude Code",
+          badge: "key",
           description:
             "CLI agent for long-running tasks: refactoring, migrations, changes across multiple modules. Reads CLAUDE.md for project context.",
           url: "https://claude.ai/code",
@@ -170,7 +174,7 @@ const developerDevelopmentCell: MatrixCell = {
         "Do not merge just because the tests passed — the agent wrote both the code and the tests; they may all pass while testing the wrong thing entirely",
         "Do not run an agent without AGENTS.md and project context — without instructions the agent produces generic code that does not fit your architecture or team conventions",
         "Do not give the agent vague tasks — 'improve this module' is a bad task; 'add pagination to the /users endpoint, unit tests required, max 20 records per page' is a good one",
-      ],
+      ]
     },
     "ai-native": {
       title: "Developer as orchestrator: humans guide, agents build",
@@ -258,7 +262,7 @@ const developerDevelopmentCell: MatrixCell = {
         "Do not assume AI-native means hands-off — oversight, course-correction, and domain judgment become more critical as agents take on more work, not less; more autonomy means more consequence per mistake",
         "Do not skip investing in domain knowledge — agents need a knowledgeable human to validate correctness in complex business contexts; your expertise is your primary value at this level, not your ability to write code",
         "Do not build agent pipelines without observability — blind pipelines create unauditable risk in production; you must be able to trace why an agent made a decision, especially when something goes wrong at 2am",
-      ]
+      ],
     },
   },
 };
@@ -284,7 +288,7 @@ const involvementMatrix: PhaseRoleInvolvement[] = [
 //   ['planning', 'architect', 'active'],
 //   ['planning', 'tech-lead', 'active'],
 //   ['planning', 'developer', 'review'],
-//   ['planning', 'dwa', 'none'],
+//   ['planning', 'dba', 'none'],
 //   ['planning', 'qa', 'review'],
 //   ['planning', 'devops', 'review'],
 //   ['planning', 'tech-writer', 'none'],
@@ -297,7 +301,7 @@ const involvementMatrix: PhaseRoleInvolvement[] = [
 //   ['requirements', 'architect', 'review'],
 //   ['requirements', 'tech-lead', 'active'],
 //   ['requirements', 'developer', 'review'],
-//   ['requirements', 'dwa', 'review'],
+//   ['requirements', 'dba', 'review'],
 //   ['requirements', 'qa', 'review'],
 //   ['requirements', 'devops', 'none'],
 //   ['requirements', 'tech-writer', 'review'],
@@ -310,7 +314,7 @@ const involvementMatrix: PhaseRoleInvolvement[] = [
 //   ['design-architecture', 'architect', 'lead'],
 //   ['design-architecture', 'tech-lead', 'lead'],
 //   ['design-architecture', 'developer', 'review'],
-//   ['design-architecture', 'dwa', 'none'],
+//   ['design-architecture', 'dba', 'none'],
 //   ['design-architecture', 'qa', 'review'],
 //   ['design-architecture', 'devops', 'review'],
 //   ['design-architecture', 'tech-writer', 'none'],
@@ -323,7 +327,7 @@ const involvementMatrix: PhaseRoleInvolvement[] = [
 //   ['development', 'architect', 'active'],
 //   ['development', 'tech-lead', 'lead'],
 //   ['development', 'developer', 'active'],
-//   ['development', 'dwa', 'active'],
+//   ['development', 'dba', 'active'],
 //   ['development', 'qa', 'review'],
 //   ['development', 'devops', 'active'],
 //   ['development', 'tech-writer', 'review'],
@@ -336,7 +340,7 @@ const involvementMatrix: PhaseRoleInvolvement[] = [
 //   ['testing', 'architect', 'review'],
 //   ['testing', 'tech-lead', 'active'],
 //   ['testing', 'developer', 'active'],
-//   ['testing', 'dwa', 'review'],
+//   ['testing', 'dba', 'review'],
 //   ['testing', 'qa', 'lead'],
 //   ['testing', 'devops', 'active'],
 //   ['testing', 'tech-writer', 'review'],
@@ -349,7 +353,7 @@ const involvementMatrix: PhaseRoleInvolvement[] = [
 //   ['deployment-release', 'architect', 'review'],
 //   ['deployment-release', 'tech-lead', 'active'],
 //   ['deployment-release', 'developer', 'active'],
-//   ['deployment-release', 'dwa', 'none'],
+//   ['deployment-release', 'dba', 'none'],
 //   ['deployment-release', 'qa', 'review'],
 //   ['deployment-release', 'devops', 'lead'],
 //   ['deployment-release', 'tech-writer', 'review'],
@@ -362,7 +366,7 @@ const involvementMatrix: PhaseRoleInvolvement[] = [
 //   ['maintenance', 'architect', 'review'],
 //   ['maintenance', 'tech-lead', 'active'],
 //   ['maintenance', 'developer', 'active'],
-//   ['maintenance', 'dwa', 'active'],
+//   ['maintenance', 'dba', 'active'],
 //   ['maintenance', 'qa', 'active'],
 //   ['maintenance', 'devops', 'lead'],
 //   ['maintenance', 'tech-writer', 'on-demand'],
@@ -392,7 +396,7 @@ export const matrixData: MatrixData = {
     { id: "architect", label: "Architect", group: "architecture" },
     { id: "tech-lead", label: "Tech Lead", group: "architecture" },
     { id: "developer", label: "Developer", group: "implementation" },
-    { id: "dwa", label: "DWA", group: "implementation" },
+    { id: "dba", label: "DBA", group: "implementation" },
     { id: "qa", label: "QA", group: "quality" },
     { id: "devops", label: "DevOps", group: "infra" },
     { id: "tech-writer", label: "Tech Writer", group: "docs" },

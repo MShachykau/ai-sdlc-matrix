@@ -26,7 +26,7 @@ export type Role =
   | "architect"
   | "tech-lead"
   | "developer"
-  | "dwa"
+  | "dba"
   | "qa"
   | "devops"
   | "tech-writer";
