@@ -72,7 +72,7 @@ export interface CardContent {
   tools: Tool[];
   links: ResourceLink[];
   practices: string[];
-  expectations: ExpectationLevel;
+  expectations?: ExpectationLevel;
   antipatterns: string[];
   metrics?: Metric[];
 }

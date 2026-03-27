@@ -10,6 +10,7 @@ interface Props {
   level: AILevel;
   involvement: InvolvementType;
   onClose: () => void;
+  onEdit: () => void;
 }
 
 const LEVEL_STYLES: Record<AILevel, { label: string; bg: string; text: string; border: string }> = {
@@ -53,7 +54,7 @@ function Section({ title, children, defaultOpen = true }: { title: string; child
   );
 }
 
-export function CardPanel({ phase, role, level, involvement, onClose }: Props) {
+export function CardPanel({ phase, role, level, involvement, onClose, onEdit }: Props) {
   const phaseInfo = matrixData.phases.find(p => p.id === phase);
   const roleInfo = matrixData.roles.find(r => r.id === role);
   const cell = matrixData.cells.find(c => c.phase === phase && c.role === role);
@@ -81,7 +82,7 @@ export function CardPanel({ phase, role, level, involvement, onClose }: Props) {
   if (!card || !phaseInfo || !roleInfo) return null;
 
   const readTime = estimateReadTime(
-    [card.title, ...card.practices, card.expectations.minimum, card.expectations.normal, card.expectations.advanced, ...card.antipatterns].join(' ')
+    [card.title, ...card.practices, card.expectations?.minimum, card.expectations?.normal, card.expectations?.advanced, ...card.antipatterns].join(' ')
   );
 
   const today = new Date();
@@ -124,15 +125,27 @@ export function CardPanel({ phase, role, level, involvement, onClose }: Props) {
 
           <div className="flex items-start justify-between gap-3">
             <h2 className="text-base font-bold text-slate-900 leading-snug flex-1">{card.title}</h2>
-            <button
-              onClick={onClose}
-              className="flex-shrink-0 p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors mt-0.5"
-              aria-label="Close panel"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
+              <button
+                onClick={onEdit}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition-colors"
+                aria-label="Edit cell"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit
+              </button>
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                aria-label="Close panel"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 mt-3">
@@ -195,16 +208,18 @@ export function CardPanel({ phase, role, level, involvement, onClose }: Props) {
             )}
           </Section>
 
+          {card.expectations && (
           <Section title="Team expectations">
             <div className="grid grid-cols-3 gap-2">
               {(['minimum', 'normal', 'advanced'] as const).map(tier => (
                 <div key={tier} className="rounded-lg bg-slate-50 border border-slate-100 p-3 flex flex-col gap-1.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{tier}</span>
-                  <p className="text-xs text-slate-600 leading-relaxed">{card.expectations[tier]}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed">{card.expectations?.[tier]}</p>
                 </div>
               ))}
             </div>
           </Section>
+          )}
 
           <Section title="Anti-patterns" defaultOpen={true}>
             <ul className="space-y-2.5">

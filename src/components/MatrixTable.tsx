@@ -55,7 +55,7 @@ export function MatrixTable({ selectedPhase, selectedRole, activeGroup, onCellCl
 
   return (
     <div className="w-full overflow-x-auto scrollbar-thin rounded-lg border border-slate-200 bg-white shadow-sm">
-      <table className="border-collapse" style={{ minWidth: 900 }}>
+      <table className="w-full border-collapse" style={{ minWidth: 900 }}>
         <thead>
           {/* Group header row */}
           <tr>

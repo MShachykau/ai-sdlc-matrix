@@ -10,7 +10,7 @@ import type {
 const developerDevelopmentCell: MatrixCell = {
   phase: "development",
   role: "developer",
-  involvement: "active",
+  involvement: "lead",
   cards: {
     "ai-enabled": {
       title: "Feature development with AI assistant",
@@ -174,7 +174,7 @@ const developerDevelopmentCell: MatrixCell = {
         "Do not merge just because the tests passed — the agent wrote both the code and the tests; they may all pass while testing the wrong thing entirely",
         "Do not run an agent without AGENTS.md and project context — without instructions the agent produces generic code that does not fit your architecture or team conventions",
         "Do not give the agent vague tasks — 'improve this module' is a bad task; 'add pagination to the /users endpoint, unit tests required, max 20 records per page' is a good one",
-      ]
+      ],
     },
     "ai-native": {
       title: "Developer as orchestrator: humans guide, agents build",
@@ -267,113 +267,101 @@ const developerDevelopmentCell: MatrixCell = {
   },
 };
 
-// ─── Involvement matrix ───────────────────────────────────────────────────────
-type PhaseRoleInvolvement = [SDLCPhase, Role, InvolvementType];
-const involvementMatrix: PhaseRoleInvolvement[] = [
-  ["planning", "developer", "on-demand"],
-  ["requirements", "developer", "review"],
-  ["design-architecture", "developer", "review"],
-  ["development", "developer", "lead"],
-  ["testing", "developer", "active"],
-  ["deployment-release", "developer", "active"],
-  ["maintenance", "developer", "active"],
-];
-// const involvementMatrix: PhaseRoleInvolvement[] = [
-//   ['planning', 'link', 'lead'],
-//   ['planning', 'po', 'lead'],
-//   ['planning', 'pm', 'lead'],
-//   ['planning', 'scrum-master', 'active'],
-//   ['planning', 'ba', 'active'],
-//   ['planning', 'ux-ui', 'on-demand'],
-//   ['planning', 'architect', 'active'],
-//   ['planning', 'tech-lead', 'active'],
-//   ['planning', 'developer', 'review'],
-//   ['planning', 'dba', 'none'],
-//   ['planning', 'qa', 'review'],
-//   ['planning', 'devops', 'review'],
-//   ['planning', 'tech-writer', 'none'],
-//   ['requirements', 'link', 'active'],
-//   ['requirements', 'po', 'lead'],
-//   ['requirements', 'pm', 'active'],
-//   ['requirements', 'scrum-master', 'active'],
-//   ['requirements', 'ba', 'lead'],
-//   ['requirements', 'ux-ui', 'active'],
-//   ['requirements', 'architect', 'review'],
-//   ['requirements', 'tech-lead', 'active'],
-//   ['requirements', 'developer', 'review'],
-//   ['requirements', 'dba', 'review'],
-//   ['requirements', 'qa', 'review'],
-//   ['requirements', 'devops', 'none'],
-//   ['requirements', 'tech-writer', 'review'],
-//   ['design-architecture', 'link', 'none'],
-//   ['design-architecture', 'po', 'active'],
-//   ['design-architecture', 'pm', 'active'],
-//   ['design-architecture', 'scrum-master', 'review'],
-//   ['design-architecture', 'ba', 'active'],
-//   ['design-architecture', 'ux-ui', 'lead'],
-//   ['design-architecture', 'architect', 'lead'],
-//   ['design-architecture', 'tech-lead', 'lead'],
-//   ['design-architecture', 'developer', 'review'],
-//   ['design-architecture', 'dba', 'none'],
-//   ['design-architecture', 'qa', 'review'],
-//   ['design-architecture', 'devops', 'review'],
-//   ['design-architecture', 'tech-writer', 'none'],
-//   ['development', 'link', 'none'],
-//   ['development', 'po', 'review'],
-//   ['development', 'pm', 'review'],
-//   ['development', 'scrum-master', 'active'],
-//   ['development', 'ba', 'review'],
-//   ['development', 'ux-ui', 'review'],
-//   ['development', 'architect', 'active'],
-//   ['development', 'tech-lead', 'lead'],
-//   ['development', 'developer', 'active'],
-//   ['development', 'dba', 'active'],
-//   ['development', 'qa', 'review'],
-//   ['development', 'devops', 'active'],
-//   ['development', 'tech-writer', 'review'],
-//   ['testing', 'link', 'none'],
-//   ['testing', 'po', 'review'],
-//   ['testing', 'pm', 'review'],
-//   ['testing', 'scrum-master', 'active'],
-//   ['testing', 'ba', 'review'],
-//   ['testing', 'ux-ui', 'review'],
-//   ['testing', 'architect', 'review'],
-//   ['testing', 'tech-lead', 'active'],
-//   ['testing', 'developer', 'active'],
-//   ['testing', 'dba', 'review'],
-//   ['testing', 'qa', 'lead'],
-//   ['testing', 'devops', 'active'],
-//   ['testing', 'tech-writer', 'review'],
-//   ['deployment-release', 'link', 'none'],
-//   ['deployment-release', 'po', 'review'],
-//   ['deployment-release', 'pm', 'review'],
-//   ['deployment-release', 'scrum-master', 'active'],
-//   ['deployment-release', 'ba', 'none'],
-//   ['deployment-release', 'ux-ui', 'none'],
-//   ['deployment-release', 'architect', 'review'],
-//   ['deployment-release', 'tech-lead', 'active'],
-//   ['deployment-release', 'developer', 'active'],
-//   ['deployment-release', 'dba', 'none'],
-//   ['deployment-release', 'qa', 'review'],
-//   ['deployment-release', 'devops', 'lead'],
-//   ['deployment-release', 'tech-writer', 'review'],
-//   ['maintenance', 'link', 'none'],
-//   ['maintenance', 'po', 'on-demand'],
-//   ['maintenance', 'pm', 'on-demand'],
-//   ['maintenance', 'scrum-master', 'review'],
-//   ['maintenance', 'ba', 'on-demand'],
-//   ['maintenance', 'ux-ui', 'on-demand'],
-//   ['maintenance', 'architect', 'review'],
-//   ['maintenance', 'tech-lead', 'active'],
-//   ['maintenance', 'developer', 'active'],
-//   ['maintenance', 'dba', 'active'],
-//   ['maintenance', 'qa', 'active'],
-//   ['maintenance', 'devops', 'lead'],
-//   ['maintenance', 'tech-writer', 'on-demand'],
-// ];
+const developerTestingCell: MatrixCell = {
+  phase: "testing",
+  role: "developer",
+  involvement: "active",
+  cards: {
+    "ai-enabled": {
+      title: "Test",
+      tools: [
+        {
+          name: "Capilot",
+          description: "test description",
+          badge: "key",
+        },
+      ],
+      practices: ["test 1", "test 1", "test 3"],
+      expectations: {
+        minimum: "1",
+        normal: "2",
+        advanced: "43",
+      },
+      antipatterns: ["tes1", "tes 2", "tes 3"],
+      links: [
+        {
+          title: "title 1",
+          url: "https://godelonline.sharepoint.com/Divisions/DeliveryDivisions/JavaScript/SitePages/English-Quiz.aspx",
+          type: "article",
+          duration: "",
+          why: "need",
+        },
+      ],
+      shift: "noo nono nono n",
+    },
+    "ai-first": {
+      title: "Editing content for AI-First",
+      tools: [
+        {
+          name: "tol ",
+          description: "sadasdasd",
+          badge: "asdasd",
+        },
+        {
+          name: "tol 3",
+          description: "asdasd",
+        },
+      ],
+      practices: [],
+      expectations: {
+        minimum: "sad",
+        normal: "qwe",
+        advanced: "sdf",
+      },
+      antipatterns: ["asdasdad", "weqewqe", "gdfgdfgf"],
+      links: [
+        {
+          title: "tte1",
+          url: "asda",
+          type: "article",
+          duration: "22h",
+          why: "adsasda",
+        },
+      ],
+      shift: "adssadsd ",
+    },
+    "ai-native": {
+      title: "Editing content for AI Native",
+      tools: [
+        {
+          name: "adsad1",
+          description: "asdsada ",
+          badge: "sada",
+        },
+      ],
+      practices: ["adsdsd", "adsad1", "cascsad3"],
+      expectations: {
+        minimum: "asda",
+        normal: "qweq",
+        advanced: "dczdsda",
+      },
+      antipatterns: ["adasd 3", "asdads1", "asdasdas2"],
+      links: [
+        {
+          title: "sdfsdfsf",
+          url: "sdf",
+          type: "video",
+          duration: "22",
+          why: "sdfsdffs",
+        },
+      ],
+      shift: "asdasds",
+    },
+  },
+};
 
 // Only the one seed cell has card content
-const allCells: MatrixCell[] = [developerDevelopmentCell];
+const allCells: MatrixCell[] = [developerDevelopmentCell, developerTestingCell];
 
 // ─── Main export ───────────────────────────────────────────────────────────────
 export const matrixData: MatrixData = {
@@ -404,4 +392,6 @@ export const matrixData: MatrixData = {
   cells: allCells,
 };
 
-export const rawInvolvementMatrix = involvementMatrix;
+export const rawInvolvementMatrix = allCells.map(
+  (cell) => [cell.phase, cell.role, cell.involvement] as [SDLCPhase, Role, InvolvementType]
+);

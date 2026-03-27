@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { SDLCPhase, Role } from './data/types';
 import { matrixData, rawInvolvementMatrix } from './data/matrix';
 import { useMatrixState } from './hooks/useMatrixState';
@@ -7,6 +7,7 @@ import { RoleGroupFilter } from './components/RoleGroupFilter';
 import { MatrixTable } from './components/MatrixTable';
 import { CardPanel } from './components/CardPanel';
 import { Legend } from './components/Legend';
+import { CellEditorModal } from './components/CellEditorModal';
 
 // Build involvement lookup
 const involvementMap = new Map<string, import('./data/types').InvolvementType>();
@@ -37,6 +38,16 @@ export default function App() {
     : 'none';
 
   const panelOpen = selectedPhase !== null && selectedRole !== null && panelInvolvement !== 'none';
+
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorPhase, setEditorPhase] = useState<SDLCPhase | undefined>(undefined);
+  const [editorRole, setEditorRole] = useState<Role | undefined>(undefined);
+
+  const openEditor = useCallback((phase?: SDLCPhase, role?: Role) => {
+    setEditorPhase(phase);
+    setEditorRole(role);
+    setEditorOpen(true);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -83,7 +94,27 @@ export default function App() {
         <div className="mt-4 p-4 bg-white rounded-lg border border-slate-200">
           <Legend />
         </div>
+
+        {/* Add Cell button */}
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => openEditor()}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+          >
+            <span className="text-base leading-none">+</span>
+            Fill / Edit Cell
+          </button>
+        </div>
       </main>
+
+      {/* Cell Editor Modal */}
+      {editorOpen && (
+        <CellEditorModal
+          onClose={() => setEditorOpen(false)}
+          initialPhase={editorPhase}
+          initialRole={editorRole}
+        />
+      )}
 
       {/* Card Panel */}
       {panelOpen && (
@@ -93,6 +124,7 @@ export default function App() {
           level={level}
           involvement={panelInvolvement}
           onClose={closePanel}
+          onEdit={() => { closePanel(); openEditor(selectedPhase!, selectedRole!); }}
         />
       )}
     </div>
