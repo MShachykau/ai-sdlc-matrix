@@ -17,14 +17,14 @@ const groups: { id: RoleGroup; label: string }[] = [
 
 export function RoleGroupFilter({ activeGroup, onGroupChange }: Props) {
   return (
-    <div className="flex flex-wrap gap-2 items-center">
-      <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Filter</span>
+    <div className="flex flex-wrap gap-1.5 items-center">
+      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">Filter</span>
       <button
         onClick={() => onGroupChange(null)}
-        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 border
+        className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-150 cursor-pointer
           ${activeGroup === null
-            ? 'bg-slate-700 text-white border-slate-700'
-            : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'}`}
+            ? 'bg-white text-slate-900 shadow-sm'
+            : 'bg-slate-700/60 text-slate-300 hover:bg-slate-700 hover:text-white'}`}
       >
         All roles
       </button>
@@ -32,10 +32,10 @@ export function RoleGroupFilter({ activeGroup, onGroupChange }: Props) {
         <button
           key={g.id}
           onClick={() => onGroupChange(activeGroup === g.id ? null : g.id)}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 border
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-150 cursor-pointer
             ${activeGroup === g.id
-              ? 'bg-slate-700 text-white border-slate-700'
-              : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'}`}
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'bg-slate-700/60 text-slate-300 hover:bg-slate-700 hover:text-white'}`}
         >
           {g.label}
         </button>

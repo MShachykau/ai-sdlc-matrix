@@ -34,12 +34,16 @@ App
 ├── LevelSelector      — switches AILevel
 ├── RoleGroupFilter    — filters visible role columns by RoleGroup
 ├── MatrixTable        — renders the grid; each clickable cell is MatrixCell
-└── CardPanel          — right-side drawer (desktop) / bottom sheet (mobile)
-    ├── ToolCard       — individual tool entry
-    └── ResourceLink   — article/video/course link
+├── Legend             — involvement color key, rendered below the matrix
+├── CardPanel          — right-side drawer (desktop) / bottom sheet (mobile)
+│   ├── ToolCard       — individual tool entry
+│   └── ResourceLink   — article/video/course link
+└── CellEditorModal    — form modal for creating/editing a cell's full content
 ```
 
 `CardPanel` opens when a non-`none` cell is clicked. It reads `matrixData.cells` directly by `phase + role` key, then accesses `cell.cards[level]` for the current AI level's content.
+
+`CellEditorModal` (opened via "Fill / Edit Cell" button or CardPanel's edit action) edits all three AI-level cards simultaneously. It **does not write to `matrix.ts`** — it downloads a JSON file matching the `MatrixCell` type, which must be manually integrated into `src/data/matrix.ts`.
 
 ### Adding new matrix data
 

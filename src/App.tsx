@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import type { SDLCPhase, Role } from './data/types';
-import { matrixData, rawInvolvementMatrix } from './data/matrix';
+import { matrixData, involvementMap } from './data/matrix';
 import { useMatrixState } from './hooks/useMatrixState';
 import { LevelSelector } from './components/LevelSelector';
 import { RoleGroupFilter } from './components/RoleGroupFilter';
@@ -8,12 +8,6 @@ import { MatrixTable } from './components/MatrixTable';
 import { CardPanel } from './components/CardPanel';
 import { Legend } from './components/Legend';
 import { CellEditorModal } from './components/CellEditorModal';
-
-// Build involvement lookup
-const involvementMap = new Map<string, import('./data/types').InvolvementType>();
-for (const [phase, role, inv] of rawInvolvementMatrix) {
-  involvementMap.set(`${phase}|${role}`, inv);
-}
 
 export default function App() {
   const {
@@ -50,20 +44,20 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-100">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+      <header className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 shadow-xl shadow-slate-900/30">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-3 flex-1">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 via-blue-500 to-violet-600 flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 via-blue-400 to-violet-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-500/20">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-sm font-bold text-slate-900 leading-none">AI-SDLC Role Matrix</h1>
-                <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">Interactive cheatsheet for AI-era delivery roles</p>
+                <h1 className="text-sm font-bold text-white leading-none tracking-tight">AI-SDLC Role Matrix</h1>
+                <p className="text-xs text-slate-400 mt-1 hidden sm:block">Interactive cheatsheet for AI-era delivery roles</p>
               </div>
             </div>
           </div>
@@ -71,9 +65,11 @@ export default function App() {
         </div>
       </header>
 
-      {/* Role group filter */}
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-3 border-b border-slate-200 bg-white">
-        <RoleGroupFilter activeGroup={activeGroup} onGroupChange={setActiveGroup} />
+      {/* Role group filter — part of dark nav zone */}
+      <div className="bg-slate-800 border-b border-slate-700/80">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-2.5">
+          <RoleGroupFilter activeGroup={activeGroup} onGroupChange={setActiveGroup} />
+        </div>
       </div>
 
       {/* Main content */}
@@ -83,7 +79,6 @@ export default function App() {
         </p>
 
         <MatrixTable
-          level={level}
           selectedPhase={selectedPhase}
           selectedRole={selectedRole}
           activeGroup={activeGroup}
@@ -91,7 +86,7 @@ export default function App() {
         />
 
         {/* Legend */}
-        <div className="mt-4 p-4 bg-white rounded-lg border border-slate-200">
+        <div className="mt-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
           <Legend />
         </div>
 
@@ -99,9 +94,11 @@ export default function App() {
         <div className="mt-4 flex justify-center">
           <button
             onClick={() => openEditor()}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:shadow-md transition-all duration-200 cursor-pointer"
           >
-            <span className="text-base leading-none">+</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
             Fill / Edit Cell
           </button>
         </div>

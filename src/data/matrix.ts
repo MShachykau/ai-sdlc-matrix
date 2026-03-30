@@ -282,11 +282,6 @@ const developerTestingCell: MatrixCell = {
         },
       ],
       practices: ["test 1", "test 1", "test 3"],
-      expectations: {
-        minimum: "1",
-        normal: "2",
-        advanced: "43",
-      },
       antipatterns: ["tes1", "tes 2", "tes 3"],
       links: [
         {
@@ -394,4 +389,8 @@ export const matrixData: MatrixData = {
 
 export const rawInvolvementMatrix = allCells.map(
   (cell) => [cell.phase, cell.role, cell.involvement] as [SDLCPhase, Role, InvolvementType]
+);
+
+export const involvementMap = new Map<string, InvolvementType>(
+  allCells.map((cell) => [`${cell.phase}|${cell.role}`, cell.involvement])
 );
