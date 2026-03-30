@@ -2,12 +2,14 @@ import { useCallback, useState } from 'react';
 import type { SDLCPhase, Role } from './data/types';
 import { matrixData, involvementMap } from './data/matrix';
 import { useMatrixState } from './hooks/useMatrixState';
+import { useAuth } from './hooks/useAuth';
 import { LevelSelector } from './components/LevelSelector';
 import { RoleGroupFilter } from './components/RoleGroupFilter';
 import { MatrixTable } from './components/MatrixTable';
 import { CardPanel } from './components/CardPanel';
 import { Legend } from './components/Legend';
 import { CellEditorModal } from './components/CellEditorModal';
+import { AuthModal } from './components/AuthModal';
 
 export default function App() {
   const {
@@ -33,15 +35,18 @@ export default function App() {
 
   const panelOpen = selectedPhase !== null && selectedRole !== null && panelInvolvement !== 'none';
 
+  const { isAuthenticated, showAuthModal, login, dismissModal } = useAuth();
+
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorPhase, setEditorPhase] = useState<SDLCPhase | undefined>(undefined);
   const [editorRole, setEditorRole] = useState<Role | undefined>(undefined);
 
   const openEditor = useCallback((phase?: SDLCPhase, role?: Role) => {
+    if (!isAuthenticated) return;
     setEditorPhase(phase);
     setEditorRole(role);
     setEditorOpen(true);
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -90,22 +95,29 @@ export default function App() {
           <Legend />
         </div>
 
-        {/* Add Cell button */}
-        <div className="mt-4 flex justify-center">
-          <button
-            onClick={() => openEditor()}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:shadow-md transition-all duration-200 cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Fill / Edit Cell
-          </button>
-        </div>
+        {/* Add Cell button — visible only when authenticated */}
+        {isAuthenticated && (
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={() => openEditor()}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:shadow-md transition-all duration-200 cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Fill / Edit Cell
+            </button>
+          </div>
+        )}
       </main>
 
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal onLogin={login} onDismiss={dismissModal} />
+      )}
+
       {/* Cell Editor Modal */}
-      {editorOpen && (
+      {editorOpen && isAuthenticated && (
         <CellEditorModal
           onClose={() => setEditorOpen(false)}
           initialPhase={editorPhase}
@@ -121,7 +133,7 @@ export default function App() {
           level={level}
           involvement={panelInvolvement}
           onClose={closePanel}
-          onEdit={() => { closePanel(); openEditor(selectedPhase!, selectedRole!); }}
+          onEdit={isAuthenticated ? () => { closePanel(); openEditor(selectedPhase!, selectedRole!); } : undefined}
         />
       )}
     </div>
