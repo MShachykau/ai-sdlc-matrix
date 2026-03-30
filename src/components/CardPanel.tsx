@@ -10,7 +10,7 @@ interface Props {
   level: AILevel;
   involvement: InvolvementType;
   onClose: () => void;
-  onEdit: () => void;
+  onEdit?: () => void;
 }
 
 const LEVEL_HEADER: Record<AILevel, { gradient: string; label: string }> = {
@@ -133,16 +133,18 @@ export function CardPanel({ phase, role, level, involvement, onClose, onEdit }: 
           <div className="flex items-start justify-between gap-3">
             <h2 className="text-base font-bold text-white leading-snug flex-1">{card.title}</h2>
             <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
-              <button
-                onClick={onEdit}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-white/80 hover:text-white hover:bg-white/20 border border-white/20 transition-all duration-150 cursor-pointer"
-                aria-label="Edit cell"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit
-              </button>
+              {onEdit && (
+                <button
+                  onClick={onEdit}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-white/80 hover:text-white hover:bg-white/20 border border-white/20 transition-all duration-150 cursor-pointer"
+                  aria-label="Edit cell"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </button>
+              )}
               <button
                 onClick={onClose}
                 className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/20 transition-all duration-150 cursor-pointer"
