@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import type { AILevel, SDLCPhase, Role, RoleGroup } from '../data/types';
-import { matrixData, rawInvolvementMatrix } from '../data/matrix';
+import type { SDLCPhase, Role, RoleGroup } from '../data/types';
+import { matrixData, involvementMap } from '../data/matrix';
 import { MatrixCell } from './MatrixCell';
 
 interface Props {
-  level: AILevel;
   selectedPhase: SDLCPhase | null;
   selectedRole: Role | null;
   activeGroup: string | null;
@@ -20,12 +19,6 @@ const GROUP_LABELS: Record<RoleGroup, string> = {
   'infra': 'Infrastructure',
   'docs': 'Docs',
 };
-
-// Build involvement lookup: phase|role -> involvement
-const involvementMap = new Map<string, import('../data/types').InvolvementType>();
-for (const [phase, role, inv] of rawInvolvementMatrix) {
-  involvementMap.set(`${phase}|${role}`, inv);
-}
 
 export function MatrixTable({ selectedPhase, selectedRole, activeGroup, onCellClick }: Props) {
   const { phases, roles } = matrixData;
@@ -54,21 +47,21 @@ export function MatrixTable({ selectedPhase, selectedRole, activeGroup, onCellCl
   }, [roles]);
 
   return (
-    <div className="w-full overflow-x-auto scrollbar-thin rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div className="w-full overflow-x-auto scrollbar-thin rounded-xl border border-slate-200 bg-white shadow-sm">
       <table className="w-full border-collapse" style={{ minWidth: 900 }}>
         <thead>
           {/* Group header row */}
-          <tr>
-            <th className="sticky left-0 z-30 bg-white border-b border-r border-slate-200 w-36 min-w-36" />
+          <tr className="bg-slate-50">
+            <th className="sticky left-0 z-30 bg-slate-50 border-b border-r border-slate-200 w-36 min-w-36" />
             {roleGroups.map(({ group, roles: groupRoles }) => {
               const isDimmed = activeGroup !== null && activeGroup !== group;
               return (
                 <th
                   key={group}
                   colSpan={groupRoles.length}
-                  className={`border-b border-r border-slate-100 text-center py-1.5 px-2 transition-opacity duration-150 ${isDimmed ? 'opacity-20' : ''}`}
+                  className={`border-b border-r border-slate-200 text-center py-2 px-2 transition-opacity duration-150 ${isDimmed ? 'opacity-20' : ''}`}
                 >
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     {GROUP_LABELS[group]}
                   </span>
                 </th>
@@ -76,9 +69,9 @@ export function MatrixTable({ selectedPhase, selectedRole, activeGroup, onCellCl
             })}
           </tr>
           {/* Role name header row */}
-          <tr>
-            <th className="sticky left-0 z-30 bg-white border-b border-r border-slate-200 w-36 min-w-36 py-2 px-3">
-              <span className="text-xs font-medium text-slate-400">Phase / Role</span>
+          <tr className="bg-white">
+            <th className="sticky left-0 z-30 bg-white border-b border-r border-slate-200 w-36 min-w-36 py-2.5 px-3">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phase / Role</span>
             </th>
             {roles.map(role => {
               const isDimmed = activeGroup !== null && activeGroup !== role.group;
@@ -86,9 +79,9 @@ export function MatrixTable({ selectedPhase, selectedRole, activeGroup, onCellCl
               return (
                 <th
                   key={role.id}
-                  className={`border-b border-r border-slate-100 text-center py-2 px-1 transition-opacity duration-150 ${isDimmed ? 'opacity-20' : ''}`}
+                  className={`border-b border-r border-slate-100 text-center py-2.5 px-1 transition-opacity duration-150 ${isDimmed ? 'opacity-20' : ''}`}
                 >
-                  <span className={`text-xs font-semibold whitespace-nowrap ${isSelected ? 'text-slate-900' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-semibold whitespace-nowrap ${isSelected ? 'text-slate-900' : 'text-slate-400'}`}>
                     {role.label}
                   </span>
                 </th>
@@ -98,10 +91,10 @@ export function MatrixTable({ selectedPhase, selectedRole, activeGroup, onCellCl
         </thead>
         <tbody>
           {phases.map((phase, phaseIdx) => (
-            <tr key={phase.id} className={phaseIdx % 2 === 1 ? 'bg-slate-50/50' : ''}>
+            <tr key={phase.id} className={phaseIdx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}>
               {/* Sticky phase label */}
-              <td className="sticky left-0 z-20 bg-inherit border-r border-b border-slate-100 py-1 px-3 min-w-36 w-36">
-                <span className={`text-xs font-semibold whitespace-nowrap ${selectedPhase === phase.id ? 'text-slate-900' : 'text-slate-600'}`}>
+              <td className={`sticky left-0 z-20 border-r border-b border-slate-100 py-1 px-3 min-w-36 w-36 ${phaseIdx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}`}>
+                <span className={`text-[11px] font-bold whitespace-nowrap ${selectedPhase === phase.id ? 'text-slate-900' : 'text-slate-500'}`}>
                   {phase.label}
                 </span>
               </td>

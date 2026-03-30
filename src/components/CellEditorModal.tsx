@@ -128,7 +128,11 @@ function draftFromCard(card: CardContent): CardDraft {
       url: t.url ?? "",
     })),
     practices: [...card.practices],
-    expectations: { ...card.expectations },
+    expectations: {
+      minimum: card.expectations?.minimum ?? "",
+      normal: card.expectations?.normal ?? "",
+      advanced: card.expectations?.advanced ?? "",
+    },
     antipatterns: [...card.antipatterns],
     links: card.links.map((l: ResourceLink) => ({
       title: l.title,
@@ -189,7 +193,7 @@ function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 border border-dashed border-slate-300 hover:border-slate-400 rounded-md px-2.5 py-1 transition-colors mt-2"
+      className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 border border-dashed border-slate-300 hover:border-slate-400 rounded-lg px-2.5 py-1 transition-colors mt-2 cursor-pointer"
     >
       <span className="text-sm leading-none font-bold">+</span>
       {label}
@@ -305,7 +309,7 @@ function ToolsSection({
         {tools.map((tool, i) => (
           <div
             key={i}
-            className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2"
+            className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2"
           >
             <div className="flex items-center justify-between gap-2 mb-1">
               <span className="text-xs text-slate-400 font-medium">
@@ -410,7 +414,7 @@ function LinksSection({
         {links.map((link, i) => (
           <div
             key={i}
-            className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2"
+            className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2"
           >
             <div className="flex items-center justify-between gap-2 mb-1">
               <span className="text-xs text-slate-400 font-medium">
@@ -714,6 +718,7 @@ export function CellEditorModal({ onClose, initialPhase, initialRole }: Props) {
 
   // ── Render ────────────────────────────────────────────────────────────────
   const activeLevelMeta = AI_LEVELS.find((l) => l.id === activeLevel)!;
+  const allTitlesPresent = AI_LEVELS.every((l) => cards[l.id].title.trim() !== '');;
 
   return (
     <>
@@ -734,19 +739,26 @@ export function CellEditorModal({ onClose, initialPhase, initialRole }: Props) {
         <div className="pointer-events-auto w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
 
           {/* ── Modal header ───────────────────────────────────────────────── */}
-          <div className="flex-shrink-0 px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-4 bg-slate-50">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                Cell Editor
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Define matrix cell content for all three AI levels
-              </p>
+          <div className="flex-shrink-0 px-6 py-4 flex items-center justify-between gap-4 bg-slate-900">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 via-blue-400 to-violet-500 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-white leading-none">
+                  Cell Editor
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Define content for all three AI levels
+                </p>
+              </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+              className="flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
               aria-label="Close modal"
             >
               <svg
@@ -843,20 +855,20 @@ export function CellEditorModal({ onClose, initialPhase, initialRole }: Props) {
 
               {/* AI Level tabs */}
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
                   AI Level Content
                 </p>
-                <div className="flex bg-slate-100 rounded-lg p-1 gap-1 w-fit">
+                <div className="flex bg-slate-800 rounded-xl p-1 gap-1 w-fit border border-slate-700">
                   {AI_LEVELS.map((lvl) => (
                     <button
                       key={lvl.id}
                       type="button"
                       onClick={() => setActiveLevel(lvl.id)}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150 whitespace-nowrap border
+                      className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap cursor-pointer
                         ${
                           activeLevel === lvl.id
                             ? lvl.activeClass
-                            : "text-slate-600 hover:text-slate-900 hover:bg-white border-transparent"
+                            : "text-slate-400 hover:text-white hover:bg-white/10"
                         }`}
                     >
                       {lvl.label}
@@ -867,7 +879,7 @@ export function CellEditorModal({ onClose, initialPhase, initialRole }: Props) {
 
               {/* Active tab indicator */}
               <div
-                className={`rounded-lg border px-4 py-3 text-xs font-medium
+                className={`rounded-xl border px-4 py-3 text-xs font-medium
                   ${
                     activeLevelMeta.id === "ai-enabled"
                       ? "bg-emerald-50 border-emerald-200 text-emerald-700"
@@ -897,14 +909,16 @@ export function CellEditorModal({ onClose, initialPhase, initialRole }: Props) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200 border border-slate-200 transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDownload}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm transition-colors flex items-center gap-2"
+                disabled={!allTitlesPresent}
+                title={!allTitlesPresent ? 'All three AI level cards must have a title before downloading' : undefined}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
               >
                 <svg
                   className="w-4 h-4"

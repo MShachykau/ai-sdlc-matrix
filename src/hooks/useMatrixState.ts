@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { AILevel, SDLCPhase, Role } from '../data/types';
+import { matrixData } from '../data/matrix';
 
 interface MatrixState {
   level: AILevel;
@@ -15,14 +16,21 @@ function getSearchParam<T extends string>(key: string, allowed: T[], fallback: T
 }
 
 const AI_LEVELS: AILevel[] = ['ai-enabled', 'ai-first', 'ai-native'];
+const VALID_PHASES = matrixData.phases.map(p => p.id);
+const VALID_ROLES = matrixData.roles.map(r => r.id);
 
 export function useMatrixState() {
-  const [state, setState] = useState<MatrixState>(() => ({
-    level: getSearchParam<AILevel>('level', AI_LEVELS, 'ai-enabled'),
-    selectedPhase: (new URLSearchParams(window.location.search).get('phase') as SDLCPhase) || null,
-    selectedRole: (new URLSearchParams(window.location.search).get('role') as Role) || null,
-    activeGroup: null,
-  }));
+  const [state, setState] = useState<MatrixState>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const phase = params.get('phase') as SDLCPhase | null;
+    const role = params.get('role') as Role | null;
+    return {
+      level: getSearchParam<AILevel>('level', AI_LEVELS, 'ai-enabled'),
+      selectedPhase: phase && VALID_PHASES.includes(phase) ? phase : null,
+      selectedRole: role && VALID_ROLES.includes(role) ? role : null,
+      activeGroup: null,
+    };
+  });
 
   // Sync URL whenever state changes
   useEffect(() => {
