@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feature development with AI assistant</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* ── Modal Shell ── */
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+
+    /* ── Sticky Header ── */
+    .modal-header {
+      background: #0f9b8e;
+      color: #fff;
+      padding: 16px 20px 14px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .breadcrumb {
+      font-size: 12px;
+      opacity: .85;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .breadcrumb .sep { opacity: .6; }
+    .breadcrumb .current { font-weight: 600; }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tags { display: flex; gap: 6px; }
+
+    .tag {
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border: 1.5px solid rgba(255,255,255,.6);
+      color: #fff;
+      background: rgba(255,255,255,.18);
+    }
+
+    .read-time {
+      font-size: 12px;
+      opacity: .8;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(255,255,255,.2);
+      border: none;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      line-height: 28px;
+      text-align: center;
+    }
+    .close-btn:hover { background: rgba(255,255,255,.35); }
+
+    /* ── Scrollable Body ── */
+    .modal-body {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* ── Accordion via <details> ── */
+    details {
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    details[open] summary .chevron { transform: rotate(0deg); }
+
+    summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+      cursor: pointer;
+      user-select: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary:hover { background: #fafafa; }
+
+    .chevron {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      transform: rotate(180deg);
+      transition: transform .2s;
+    }
+
+    .section-content { padding: 0 20px 20px; }
+
+    /* ── Tools Grid ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .tool-card {
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 14px;
+      position: relative;
+    }
+
+    .tool-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 6px;
+      padding-right: 22px;
+    }
+
+    .tool-desc {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.45;
+    }
+
+    .tool-link {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      color: #bbb;
+      text-decoration: none;
+    }
+    .tool-link:hover { color: #0f9b8e; }
+    .tool-link svg { width: 14px; height: 14px; display: block; }
+
+    /* ── Read / Watch ── */
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .resource-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+    }
+
+    .resource-badge {
+      flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #0f9b8e;
+      background: #e6f7f5;
+      border-radius: 4px;
+      padding: 2px 6px;
+      margin-top: 2px;
+    }
+    .resource-badge.course {
+      color: #7a4fcf;
+      background: #f0ebfc;
+    }
+
+    .resource-info { flex: 1; }
+
+    .resource-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+      text-decoration: none;
+      display: block;
+      line-height: 1.35;
+    }
+    .resource-title:hover { color: #0f9b8e; text-decoration: underline; }
+
+    .resource-sub {
+      font-size: 12px;
+      color: #777;
+      margin-top: 3px;
+    }
+
+    .resource-time {
+      flex-shrink: 0;
+      font-size: 12px;
+      color: #999;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    /* ── Do Differently ── */
+    .do-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .do-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .do-num {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: #e6f7f5;
+      color: #0f9b8e;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .do-text {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* ── Team Expectations ── */
+    .expectations-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .exp-card {
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .exp-level {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .exp-level.minimum { color: #888; }
+    .exp-level.normal  { color: #4a90d9; }
+    .exp-level.advanced{ color: #0f9b8e; }
+
+    .exp-text {
+      font-size: 12px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    /* ── Anti-patterns ── */
+    .anti-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .anti-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: #fff5f5;
+      border: 1px solid #ffe0e0;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .anti-icon {
+      flex-shrink: 0;
+      color: #e53e3e;
+      margin-top: 1px;
+    }
+    .anti-icon svg { width: 16px; height: 16px; display: block; }
+
+    .anti-text {
+      font-size: 13px;
+      color: #c53030;
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    .modal-footer {
+      padding: 10px 20px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #aaa;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+  <!-- ── Header ── -->
+  <div class="modal-header">
+    <div class="breadcrumb">
+      <span>Development</span>
+      <span class="sep">›</span>
+      <span class="current">Developer</span>
+    </div>
+    <h2 class="modal-title" id="modal-title">Feature development with AI assistant</h2>
+    <div class="meta-row">
+      <div class="tags">
+        <span class="tag">Lead</span>
+        <span class="tag">AI Enabled</span>
+      </div>
+      <span class="read-time">~2 min read</span>
+    </div>
+    <a class="close-btn" href="#" aria-label="Close">&#x2715;</a>
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="modal-body">
+
+    <!-- Tools -->
+    <details open>
+      <summary>
+        Tools
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </summary>
+      <div class="section-content">
+        <div class="tools-grid">
+
+          <div class="tool-card">
+            <div class="tool-name">GitHub Copilot</div>
+            <div class="tool-desc">In-IDE autocomplete and chat — works without switching your editor.</div>
+            <a class="tool-link" href="https://github.com/features/copilot" target="_blank" rel="noopener" aria-label="Open GitHub Copilot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+
+          <div class="tool-card">
+            <div class="tool-name">Cursor</div>
+            <div class="tool-desc">AI-native editor (VS Code fork) — understands the whole repo, edits multiple files at once.</div>
+            <a class="tool-link" href="https://cursor.com" target="_blank" rel="noopener" aria-label="Open Cursor">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+
+          <div class="tool-card">
+            <div class="tool-name">Claude / ChatGPT</div>
+            <div class="tool-desc">For complex architecture questions, debugging, and understanding unfamiliar code.</div>
+            <a class="tool-link" href="https://claude.ai" target="_blank" rel="noopener" aria-label="Open Claude / ChatGPT">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+
+          <div class="tool-card">
+            <div class="tool-name">Tabnine</div>
+            <div class="tool-desc">Privacy-first Copilot alternative — can run locally, no code leaves your machine.</div>
+            <a class="tool-link" href="https://tabnine.com" target="_blank" rel="noopener" aria-label="Open Tabnine">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </details>
+
+    <!-- Read / Watch -->
+    <details open>
+      <summary>
+        Read / Watch
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </summary>
+      <div class="section-content">
+        <div class="resource-list">
+
+          <div class="resource-item">
+            <span class="resource-badge">Article</span>
+            <div class="resource-info">
+              <a class="resource-title" href="https://www.digitalocean.com/resources/articles/github-copilot-vs-cursor" target="_blank" rel="noopener">
+                GitHub Copilot vs Cursor: The Real Comparison (2026)
+              </a>
+              <div class="resource-sub">Understand the difference and when to choose which tool</div>
+            </div>
+            <span class="resource-time">10 min</span>
+          </div>
+
+          <div class="resource-item">
+            <span class="resource-badge">Article</span>
+            <div class="resource-info">
+              <a class="resource-title" href="https://addyo.substack.com/p/the-reality-of-ai-assisted-software" target="_blank" rel="noopener">
+                The Reality of AI-Assisted Software Engineering
+              </a>
+              <div class="resource-sub">Real data on where AI helps and where it slows you down</div>
+            </div>
+            <span class="resource-time">15 min</span>
+          </div>
+
+          <div class="resource-item">
+            <span class="resource-badge">Article</span>
+            <div class="resource-info">
+              <a class="resource-title" href="https://engineering.axur.com/2025/05/09/best-practices-for-ai-assisted-coding.html" target="_blank" rel="noopener">
+                Best Practices for AI-Assisted Coding
+              </a>
+              <div class="resource-sub">TDD workflow with AI agents — concrete and battle-tested</div>
+            </div>
+            <span class="resource-time">8 min</span>
+          </div>
+
+          <div class="resource-item">
+            <span class="resource-badge course">Course</span>
+            <div class="resource-info">
+              <a class="resource-title" href="https://www.udemy.com/course/ai-for-developers-with-github-copilot-cursor-ai-chatgpt/" target="_blank" rel="noopener">
+                AI For Developers: GitHub Copilot, Cursor &amp; ChatGPT
+              </a>
+              <div class="resource-sub">Hands-on practice, updated Jan 2026</div>
+            </div>
+            <span class="resource-time">5 h</span>
+          </div>
+
+        </div>
+      </div>
+    </details>
+
+    <!-- Do Differently -->
+    <details open>
+      <summary>
+        Do differently
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </summary>
+      <div class="section-content">
+        <ul class="do-list">
+          <li>
+            <span class="do-num">1</span>
+            <span class="do-text">Delegate boilerplate and template code (routers, models, CRUD, configs) — write only what requires business logic</span>
+          </li>
+          <li>
+            <span class="do-num">2</span>
+            <span class="do-text">Write tests before the feature — let AI generate unit tests, verify they fail, then ask for implementation</span>
+          </li>
+          <li>
+            <span class="do-num">3</span>
+            <span class="do-text">Give context, not commands — share the file, architecture, and goal; more context = more accurate output</span>
+          </li>
+          <li>
+            <span class="do-num">4</span>
+            <span class="do-text">Generate in small increments — never ask for a whole module at once; review and commit each step</span>
+          </li>
+          <li>
+            <span class="do-num">5</span>
+            <span class="do-text">Use AI for debugging — paste code + problem description + context; AI spots bugs you've been staring at for an hour</span>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- Team Expectations -->
+    <details open>
+      <summary>
+        Team expectations
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </summary>
+      <div class="section-content">
+        <div class="expectations-grid">
+          <div class="exp-card">
+            <div class="exp-level minimum">Minimum</div>
+            <div class="exp-text">At least one AI tool installed and used in IDE. Know how to accept or reject a suggestion.</div>
+          </div>
+          <div class="exp-card">
+            <div class="exp-level normal">Normal</div>
+            <div class="exp-text">Consciously review all AI-generated code. Use chat for debugging and test generation.</div>
+          </div>
+          <div class="exp-card">
+            <div class="exp-level advanced">Advanced</div>
+            <div class="exp-text">Build project-specific prompts with repo context, team style, and linter rules. Share effective prompts with the team.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Anti-patterns -->
+    <details open>
+      <summary>
+        Anti-patterns
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </summary>
+      <div class="section-content">
+        <ul class="anti-list">
+          <li class="anti-item">
+            <span class="anti-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span class="anti-text">Don't accept AI code without review — AI doesn't understand your security context and can hardcode secrets, miss race conditions, or generate vulnerable patterns</span>
+          </li>
+          <li class="anti-item">
+            <span class="anti-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span class="anti-text">Don't generate large chunks and hope they work — hidden bugs surface in prod; small increments + tests are mandatory</span>
+          </li>
+          <li class="anti-item">
+            <span class="anti-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span class="anti-text">Don't use AI as a substitute for understanding — if you can't explain what the generated code does, it's still your responsibility in review and incidents</span>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+  </div><!-- /modal-body -->
+
+  <!-- ── Footer ── -->
+  <div class="modal-footer">
+    <span>Updated: Apr 2026</span>
+    <span>Review: Jul 2026</span>
+  </div>
+
+</div>
+
+</body>
+</html>

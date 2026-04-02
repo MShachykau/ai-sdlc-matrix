@@ -1,5 +1,74 @@
 import { useCallback, useState } from 'react';
 import type { SDLCPhase, Role } from './data/types';
+
+const SP_SITE = 'https://maksimshachykau.sharepoint.com/sites/AI-SDLCRoleMatrix';
+const SP_FOLDER = '/sites/AI-SDLCRoleMatrix/SitePages/ai-sdlc-matrix';
+
+type SPFile = { Name: string; ServerRelativeUrl: string };
+type FetchState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'ok'; files: SPFile[] }
+  | { status: 'error'; message: string };
+
+function SharePointButton() {
+  const [state, setState] = useState<FetchState>({ status: 'idle' });
+
+  const handleFetch = useCallback(async () => {
+    setState({ status: 'loading' });
+    try {
+      const res = await fetch(
+        `${SP_SITE}/_api/web/GetFolderByServerRelativeUrl('${SP_FOLDER}')/Files`,
+        {
+          headers: { Accept: 'application/json;odata=verbose' },
+          credentials: 'include',
+        }
+      );
+      if (!res.ok) {
+        setState({ status: 'error', message: `HTTP ${res.status}` });
+        return;
+      }
+      const data = await res.json();
+      const files: SPFile[] = data?.d?.results ?? [];
+      console.log('[SharePoint] files:', files);
+      setState({ status: 'ok', files });
+    } catch (err) {
+      setState({ status: 'error', message: err instanceof Error ? err.message : 'Network error' });
+    }
+  }, []);
+
+  const colors =
+    state.status === 'ok'      ? 'bg-emerald-600 hover:bg-emerald-500 text-white' :
+    state.status === 'error'   ? 'bg-red-600 hover:bg-red-500 text-white' :
+    'bg-slate-700 hover:bg-slate-600 text-slate-200';
+
+  const label =
+    state.status === 'loading' ? 'Fetching…' :
+    state.status === 'ok'      ? `${state.files.length} file${state.files.length !== 1 ? 's' : ''}` :
+    state.status === 'error'   ? state.message :
+    'Fetch SP Files';
+
+  return (
+    <button
+      onClick={handleFetch}
+      disabled={state.status === 'loading'}
+      title={state.status === 'ok' ? state.files.map(f => f.Name).join('\n') : undefined}
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 disabled:opacity-60 cursor-pointer ${colors}`}
+    >
+      {state.status === 'loading' ? (
+        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+      ) : (
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+        </svg>
+      )}
+      {label}
+    </button>
+  );
+}
 import { matrixData, involvementMap } from './data/matrix';
 import { useMatrixState } from './hooks/useMatrixState';
 import { useAuth } from './hooks/useAuth';
@@ -66,7 +135,10 @@ export default function App() {
               </div>
             </div>
           </div>
-          <LevelSelector value={level} onChange={setLevel} />
+          <div className="flex items-center gap-2">
+            <SharePointButton />
+            <LevelSelector value={level} onChange={setLevel} />
+          </div>
         </div>
       </header>
 
